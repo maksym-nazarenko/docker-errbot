@@ -1,2 +1,3 @@
 *
 !docker-entrypoint.sh
+!config_*_provider.py

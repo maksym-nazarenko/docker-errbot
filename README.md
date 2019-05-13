@@ -29,7 +29,29 @@ $ docker build -t my-errbot --build-arg ERRBOT_OS_EXTRA_PACKAGES='curl wget' -f 
 
 ## Custom configuration
 
-The only way to configure the Errbot is via command line switches (env vars should be implemented in the future):
-```shell
-$ docker run -v $PWD/custom-config.py:/app/config.py:ro mnazarenko/errbot:alpine
-```
+You can configure the Errbot using:
+  * custom `config.py`
+    ```shell
+    $ docker run -v $PWD/custom-config.py:/app/config.py:ro mnazarenko/errbot:alpine
+    ```
+  * command line swtiches
+    ```shell
+    $ docker run mnazarenko/errbot:alpine --config /mount/custom.py --merge-backend '' ...
+    ```
+  * environment variables (see detailed description below)
+    ```shell
+    $ docker run -e CONFIG_PROVIDER=env -e ERRBOT_CONFIG_BOT_LOG_FILE='None' -e ERRBOT_CONFIG_BOT_ADMINS='("admin@localhost",)'  mnazarenko/errbot:alpine
+    ```
+
+## Environment variables
+
+**CONFIG_PROVIDER**
+
+  Currently, only `env` provider is supported. If this variable is omitted, the `default` provider will be used
+
+  Available config providers:
+  * `env` - parses the environment variables which starts with fixed prefix `ERRBOT_CONFIG_` and populates the module namespace with Errbot config variables.
+  Example: `ERRBOT_CONFIG_BOT_ADMINS='("admin@localhost",)'` becomes `BOT_ADMINS=("admin@localhost",)`, `ERRBOT_CONFIG_BOT_LOG_FILE='None'` becomes `BOT_LOG_FILE=None` and so on.
+
+    **NOTE:** string -> value parsing is based on the [ast.literal_eval](https://docs.python.org/3/library/ast.html#ast.literal_eval)
+  * `default` - simply copies the default config file if `/app/config.py` is missed.

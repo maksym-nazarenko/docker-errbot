@@ -47,15 +47,16 @@ RUN adduser \
 
 COPY --from=build_image ${ERRBOT_VENV_DIR}/ ${ERRBOT_VENV_DIR}/
 
-RUN mkdir -p ${ERRBOT_APP_DIR} ${ERRBOT_DATA_DIR} && chown -R ${PROJECT_APP_USER}:${ERRBOT_GROUP} ${ERRBOT_APP_DIR} ${ERRBOT_DATA_DIR}
+RUN mkdir -p ${ERRBOT_APP_DIR} ${ERRBOT_DATA_DIR} && chown -R ${ERRBOT_USER}:${ERRBOT_GROUP} ${ERRBOT_APP_DIR} ${ERRBOT_DATA_DIR}
 
 
 WORKDIR $ERRBOT_APP_DIR
 USER $ERRBOT_USER
 
-ENV PATH="$APP_VENV_DIR/bin:$PATH"
+ENV PATH="${ERRBOT_VENV_DIR}/bin:${PATH}"
 
 COPY docker-entrypoint.sh /usr/local/bin/
+COPY config_*_provider.py ${ERRBOT_APP_DIR}/
 
 VOLUME ${ERRBOT_DATA_DIR}/
 ENTRYPOINT ["docker-entrypoint.sh"]
